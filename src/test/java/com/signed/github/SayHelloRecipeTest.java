@@ -1,4 +1,4 @@
-package com.yourorg;
+package com.signed.github;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;

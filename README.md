@@ -65,15 +65,18 @@ repositories {
 }
 
 dependencies {
-    rewrite("com.yourorg:rewrite-recipe-starter:latest.integration")
+    rewrite("com.signed.github:hello-rewrite:latest.integration")
 }
 
 rewrite {
-    activeRecipe("com.yourorg.NoGuavaListsNewArrayList")
+    activeRecipe("com.signed.github.SayHelloRecipe")
 }
 ```
 
-Now you can run `gradlew rewriteRun` to run your recipe.
+./gradlew --stop
+rm -rf $HOME/.gradle/caches/
+
+Now you can run `./gradlew rewriteRun` to run your recipe.
 
 ## Publishing to Artifact Repositories
 

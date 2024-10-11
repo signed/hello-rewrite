@@ -1,7 +1,9 @@
-package com.yourorg;
+package com.signed.github;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 import org.jspecify.annotations.NonNull;
 import org.openrewrite.Option;
 import org.openrewrite.Recipe;
@@ -10,32 +12,18 @@ import org.openrewrite.java.AddMethodParameter;
 
 import java.util.Objects;
 
-// Making your recipe immutable helps make them idempotent and eliminates a variety of possible bugs.
-// Configuring your recipe in this way also guarantees that basic validation of parameters will be done for you by rewrite.
-// Also note: All recipes must be serializable. This is verified by RewriteTest.rewriteRun() in your tests.
+@Value
+@EqualsAndHashCode(callSuper = false)
 public class SayHelloRecipe extends Recipe {
-    @Option(displayName = "Fully Qualified Class Name",
+    @Option(displayName = "Fully qualified class name",
             description = "A fully qualified class name indicating which class to add a hello() method to.",
             example = "com.yourorg.FooBar")
     @NonNull
     String fullyQualifiedClassName;
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        SayHelloRecipe that = (SayHelloRecipe) o;
-        return Objects.equals(fullyQualifiedClassName, that.fullyQualifiedClassName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), fullyQualifiedClassName);
-    }
-
-    @Override
     public void buildRecipeList(RecipeList list) {
+        System.out.println("running the hello script");
         list.recipe(new AddMethodParameter("com.sample.FooBar <constructor>()", "java.lang.String", "hello", null));
     }
 
@@ -58,8 +46,8 @@ public class SayHelloRecipe extends Recipe {
     @Override
     public String toString() {
         return "SayHelloRecipe{" +
-                "fullyQualifiedClassName='" + fullyQualifiedClassName + '\'' +
-                '}';
+               "fullyQualifiedClassName='" + fullyQualifiedClassName + '\'' +
+               '}';
     }
 
 }
