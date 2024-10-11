@@ -44,48 +44,13 @@ To do this on the command line, using `gradle`, run:
 ```bash
 ./gradlew publishToMavenLocal
 # or ./gradlew pTML
-# or mvn install
-```
-
-To publish using maven, run:
-
-```bash
-./mvnw install
 ```
 
 This will publish to your local maven repository, typically under `~/.m2/repository`.
 
 Replace the groupId, artifactId, recipe name, and version in the below snippets with the ones that correspond to your recipe.
 
-In the pom.xml of a different project you wish to test your recipe out in, make your recipe module a plugin dependency of rewrite-maven-plugin:
-
-```xml
-<project>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.openrewrite.maven</groupId>
-                <artifactId>rewrite-maven-plugin</artifactId>
-                <version>RELEASE</version>
-                <configuration>
-                    <activeRecipes>
-                        <recipe>com.yourorg.NoGuavaListsNewArrayList</recipe>
-                    </activeRecipes>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.yourorg</groupId>
-                        <artifactId>rewrite-recipe-starter</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
-</project>
-```
-
-Unlike Maven, Gradle must be explicitly configured to resolve dependencies from Maven local.
+Gradle must be explicitly configured to resolve dependencies from Maven local.
 The root project of your Gradle build, make your recipe module a dependency of the `rewrite` configuration:
 
 ```groovy
@@ -108,7 +73,7 @@ rewrite {
 }
 ```
 
-Now you can run `mvn rewrite:run` or `gradlew rewriteRun` to run your recipe.
+Now you can run `gradlew rewriteRun` to run your recipe.
 
 ## Publishing to Artifact Repositories
 
@@ -145,8 +110,4 @@ You can apply these recommendations to your recipes by running the following com
 
 ```bash
 ./gradlew rewriteRun -Drewrite.activeRecipe=org.openrewrite.recipes.OpenRewriteBestPractices
-```
-or
-```bash
-./mvnw -U org.openrewrite.maven:rewrite-maven-plugin:run -Drewrite.recipeArtifactCoordinates=org.openrewrite.recipe:rewrite-recommendations:RELEASE -Drewrite.activeRecipes=org.openrewrite.recipes.OpenRewriteBestPractices
 ```
