@@ -10,8 +10,6 @@ import org.openrewrite.Recipe;
 import org.openrewrite.RecipeList;
 import org.openrewrite.java.AddMethodParameter;
 
-import java.util.Objects;
-
 @Value
 @EqualsAndHashCode(callSuper = false)
 public class SayHelloRecipe extends Recipe {
@@ -35,7 +33,7 @@ public class SayHelloRecipe extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "Say Hello";
+        return "Say hello";
     }
 
     @Override
