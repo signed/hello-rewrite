@@ -15,7 +15,6 @@
  */
 package com.signed.github;
 
-import com.yourorg.SimplifyTernaryRecipes;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.DocumentExample;
 import org.openrewrite.test.RecipeSpec;
