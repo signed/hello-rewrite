@@ -11,7 +11,7 @@ class ReplaceConstructorWithFactoryCallTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
         spec.recipe(new ReplaceConstructorWithFactoryCall(
-            "org.example.createviafactory.Hello", "(java.lang.String)",
+            "org.example.createviafactory.Hello", "String",
             "org.example.createviafactory.another.HelloFactory", "createHello"
           )
         );

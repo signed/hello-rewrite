@@ -21,7 +21,7 @@ public class ReplaceConstructorWithFactoryCall extends Recipe {
     String className;
 
     @Option(displayName = "Constructor signature",
-            example = "(long)")
+            example = "long")
     @NonNull
     String constructorSignature;
 
@@ -58,11 +58,10 @@ public class ReplaceConstructorWithFactoryCall extends Recipe {
         this.factoryMethodName = factoryMethodName;
     }
 
-
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
-        final MethodMatcher Constructor = new MethodMatcher("org.example.createviafactory.Hello <constructor>(java.lang.String)");
-        final MethodMatcher FactoryMethod = new MethodMatcher("org.example.createviafactory.another.HelloFactory createHello(java.lang.String)");
+        final MethodMatcher Constructor = new MethodMatcher(className + " <constructor>(" + constructorSignature+ ")");
+        final MethodMatcher FactoryMethod = new MethodMatcher(factoryClassName + " " + factoryMethodName + "(" + constructorSignature + ")");
 
         return new JavaVisitor<ExecutionContext>() {
             @Override
@@ -79,7 +78,7 @@ public class ReplaceConstructorWithFactoryCall extends Recipe {
                     return result;
                 }
 
-                JavaTemplate factoryCall = JavaTemplate.builder("createHello(#{any()})")
+                JavaTemplate factoryCall = JavaTemplate.builder(factoryMethodName + "(#{any()})")
                         .javaParser(JavaParser.fromJavaVersion().dependsOn("            " +
                                                                            "              package org.example.createviafactory.another;\n" +
                                                                            "              \n" +
@@ -87,16 +86,16 @@ public class ReplaceConstructorWithFactoryCall extends Recipe {
                                                                            "              \n" +
                                                                            "              public class HelloFactory {\n" +
                                                                            "              \n" +
-                                                                           "                  public static Hello createHello(String name) {\n" +
+                                                                           "                  public static Hello " + factoryMethodName + "(String name) {\n" +
                                                                            "                      return new Hello(name);\n" +
                                                                            "                  }\n" +
                                                                            "              }\n" +
                                                                            "              "))
-                        .staticImports("org.example.createviafactory.another.HelloFactory.createHello")
+                        .staticImports(factoryClassName + "." + factoryMethodName)
                         .build();
 
-                maybeRemoveImport("org.example.createviafactory.Hello");
-                maybeAddImport("org.example.createviafactory.another.HelloFactory", "createHello");
+                maybeRemoveImport(className);
+                maybeAddImport(factoryClassName, factoryMethodName);
                 return factoryCall.apply(getCursor(), newClass.getCoordinates().replace(), newClass.getArguments().get(0));
             }
         };
