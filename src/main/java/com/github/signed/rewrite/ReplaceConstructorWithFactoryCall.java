@@ -10,7 +10,12 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.MethodMatcher;
+import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = false)
 @Value
@@ -60,6 +65,7 @@ public class ReplaceConstructorWithFactoryCall extends Recipe {
 
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
+        final int numberOfConstructorParameter = constructorSignature.split(",").length;
         final MethodMatcher Constructor = new MethodMatcher(className + " <constructor>(" + constructorSignature+ ")");
         final MethodMatcher FactoryMethod = new MethodMatcher(factoryClassName + " " + factoryMethodName + "(" + constructorSignature + ")");
 
@@ -78,7 +84,9 @@ public class ReplaceConstructorWithFactoryCall extends Recipe {
                     return result;
                 }
 
-                JavaTemplate factoryCall = JavaTemplate.builder(factoryMethodName + "(#{any()})")
+                final String constructorSignatureTemplate = Collections.nCopies(numberOfConstructorParameter, "#{any()}").stream().collect(Collectors.joining(", ", "(",")"));
+
+                JavaTemplate factoryCall = JavaTemplate.builder(factoryMethodName + constructorSignatureTemplate)
                         .javaParser(JavaParser.fromJavaVersion().dependsOn("            " +
                                                                            "              package org.example.createviafactory.another;\n" +
                                                                            "              \n" +
@@ -96,7 +104,8 @@ public class ReplaceConstructorWithFactoryCall extends Recipe {
 
                 maybeRemoveImport(className);
                 maybeAddImport(factoryClassName, factoryMethodName);
-                return factoryCall.apply(getCursor(), newClass.getCoordinates().replace(), newClass.getArguments().get(0));
+                final List<Expression> arguments = newClass.getArguments();
+                return factoryCall.apply(getCursor(), newClass.getCoordinates().replace(), (Object[]) arguments.toArray(new Expression[0]));
             }
         };
     }
