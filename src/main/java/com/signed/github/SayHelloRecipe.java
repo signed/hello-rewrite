@@ -9,6 +9,7 @@ import org.openrewrite.Option;
 import org.openrewrite.Recipe;
 import org.openrewrite.RecipeList;
 import org.openrewrite.java.AddMethodParameter;
+import org.openrewrite.java.AddNullMethodArgument;
 
 @Value
 @EqualsAndHashCode(callSuper = false)
@@ -22,6 +23,7 @@ public class SayHelloRecipe extends Recipe {
     @Override
     public void buildRecipeList(RecipeList list) {
         System.out.println("running the hello script");
+        list.recipe(new AddNullMethodArgument("com.sample.FooBar <constructor>()", 0, "java.lang.String", "hello", null));
         list.recipe(new AddMethodParameter("com.sample.FooBar <constructor>()", "java.lang.String", "hello", null));
     }
 
