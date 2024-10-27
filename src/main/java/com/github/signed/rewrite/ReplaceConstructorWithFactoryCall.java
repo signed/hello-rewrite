@@ -1,8 +1,10 @@
 package com.github.signed.rewrite;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.openrewrite.*;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
@@ -10,11 +12,29 @@ import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.tree.J;
 
-@Value
 @EqualsAndHashCode(callSuper = false)
+@Value
 public class ReplaceConstructorWithFactoryCall extends Recipe {
-    private static final MethodMatcher Constructor = new MethodMatcher("org.example.createviafactory.Hello <constructor>(java.lang.String)");
-    private static final MethodMatcher FactoryMethod = new MethodMatcher("org.example.createviafactory.another.HelloFactory createHello(java.lang.String)");
+    @Option(displayName = "Class name",
+            example = "java.math.BigDecimal")
+    @NonNull
+    String className;
+
+    @Option(displayName = "Constructor signature",
+            example = "(long)")
+    @NonNull
+    String constructorSignature;
+
+    @Option(displayName = "Factory class name",
+            example = "java.math.BigDecimal")
+    @NonNull
+    String factoryClassName;
+
+    @Option(displayName = "New field target",
+            example = "valueOf")
+    @NonNull
+    String factoryMethodName;
+
 
     @Override
     public @NlsRewrite.DisplayName String getDisplayName() {
@@ -26,8 +46,24 @@ public class ReplaceConstructorWithFactoryCall extends Recipe {
         return "Searches the code for invocations of the constructor and delegats the call to a factory method.";
     }
 
+    @JsonCreator
+    public ReplaceConstructorWithFactoryCall(
+            @NonNull @JsonProperty("className") String className,
+            @NonNull @JsonProperty("constructorSignature") String constructorSignature,
+            @NonNull @JsonProperty("factoryClassName") String factoryClassName,
+            @NonNull @JsonProperty("factoryMethodName") String factoryMethodName) {
+        this.className = className;
+        this.constructorSignature = constructorSignature;
+        this.factoryClassName = factoryClassName;
+        this.factoryMethodName = factoryMethodName;
+    }
+
+
     @Override
-    public @NotNull TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
+        final MethodMatcher Constructor = new MethodMatcher("org.example.createviafactory.Hello <constructor>(java.lang.String)");
+        final MethodMatcher FactoryMethod = new MethodMatcher("org.example.createviafactory.another.HelloFactory createHello(java.lang.String)");
+
         return new JavaVisitor<ExecutionContext>() {
             @Override
             public J visitNewClass(J.NewClass newClass, ExecutionContext executionContext) {
