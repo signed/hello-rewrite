@@ -8,18 +8,14 @@ import static org.openrewrite.java.Assertions.java;
 
 class ReplaceConstructorWithFactoryCallTest implements RewriteTest {
 
-    @Override
-    public void defaults(RecipeSpec spec) {
-        spec.recipe(new ReplaceConstructorWithFactoryCall(
-            "org.example.createviafactory.Hello", "String",
-            "org.example.createviafactory.another.HelloFactory", "createHello"
-          )
-        );
-    }
-
     @Test
     void delegateToFactoryMethod() {
         rewriteRun(
+          spec-> spec.recipe(new ReplaceConstructorWithFactoryCall(
+              "org.example.createviafactory.Hello", "String",
+              "org.example.createviafactory.another.HelloFactory", "createHello"
+            )
+          ),
           java(
             """
               package org.example.createviafactory;

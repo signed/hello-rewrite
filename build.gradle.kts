@@ -64,7 +64,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "com.github.signed"
             artifactId = "hello-rewrite"
-            version = "0.1.0-SNAPSHOT"
+            version = "0.1.1-SNAPSHOT"
             from(components["java"])
         }
     }

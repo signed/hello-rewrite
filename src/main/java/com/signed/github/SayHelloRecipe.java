@@ -22,7 +22,7 @@ public class SayHelloRecipe extends Recipe {
 
     @Override
     public void buildRecipeList(RecipeList list) {
-        System.out.println("running the hello script");
+        System.out.println("running the hello script update");
         list.recipe(new AddNullMethodArgument("com.sample.FooBar <constructor>()", 0, "java.lang.String", "hello", null));
         list.recipe(new AddMethodParameter("com.sample.FooBar <constructor>()", "java.lang.String", "hello", null));
     }
