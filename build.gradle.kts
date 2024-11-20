@@ -17,7 +17,7 @@ description = "Rewrite recipes."
 dependencies {
     // The bom version can also be set to a specific version
     // https://github.com/openrewrite/rewrite-recipe-bom/releases
-    implementation(platform("org.openrewrite.recipe:rewrite-recipe-bom:2.20.0"))
+    implementation(platform("org.openrewrite.recipe:rewrite-recipe-bom:2.22.0"))
 
     implementation("org.openrewrite:rewrite-java")
     implementation("org.openrewrite.recipe:rewrite-java-dependencies")
