@@ -16,9 +16,9 @@ import static org.openrewrite.test.RewriteTest.toRecipe;
 
 public class MakeStaticTest implements RewriteTest {
 
-    private SourceSpecs helloClass = java(
+    private final SourceSpecs helloClass = java(
       """
-        package org.example.createviafactory;
+        package a;
         
         public class Hello {
         
@@ -26,11 +26,11 @@ public class MakeStaticTest implements RewriteTest {
             }
         }
         """);
-    private SourceSpecs helloFactoryClass = java(
+    private final SourceSpecs helloFactoryClass = java(
       """
-        package org.example.createviafactory.another;
+        package f;
         
-        import org.example.createviafactory.Hello;
+        import a.Hello;
         
         public class HelloFactory {
         
@@ -40,31 +40,31 @@ public class MakeStaticTest implements RewriteTest {
         }
         """
     );
-    private UseStaticImport makeFactoryImportStatic = new UseStaticImport("org.example.createviafactory.another.HelloFactory createHello(String, long)");
+    private final UseStaticImport makeFactoryImportStatic = new UseStaticImport("f.HelloFactory createHello(String, long)");
 
     @Test
-    void name() {
+    void useStaticImportWorking() {
         rewriteRun(recipeSpec -> recipeSpec.recipe(makeFactoryImportStatic),
           helloClass,
           helloFactoryClass,
           java(
             """
-              package org.example.createviafactory.usage;
+              package u;
               
-              import org.example.createviafactory.another.HelloFactory;
+              import f.HelloFactory;
               
-              public class ConstructorCall {
+              public class ConstructorUsage {
               
                   public void example() {
                       HelloFactory.createHello("Alice", 42L);
                   }
               }
               """, """
-              package org.example.createviafactory.usage;
+              package u;
               
-              import static org.example.createviafactory.another.HelloFactory.createHello;
+              import static f.HelloFactory.createHello;
               
-              public class ConstructorCall {
+              public class ConstructorUsage {
               
                   public void example() {
                       createHello("Alice", 42L);
@@ -77,7 +77,7 @@ public class MakeStaticTest implements RewriteTest {
     void noStaticImportAdded() {
         rewriteRun(recipeSpec -> {
               recipeSpec.recipe(toRecipe(() -> new JavaVisitor<>() {
-                  MethodMatcher FactoryMethod = new MethodMatcher("org.example.createviafactory.another.HelloFactory createHello(String, long)");
+                  final MethodMatcher FactoryMethod = new MethodMatcher("f.HelloFactory createHello(String, long)");
                     @Override
                     public J visitNewClass(J.NewClass newClass, ExecutionContext executionContext) {
                         final var result = (J.NewClass) super.visitNewClass(newClass, executionContext);
@@ -90,12 +90,12 @@ public class MakeStaticTest implements RewriteTest {
                         }
 
                         final var template = JavaTemplate.builder("HelloFactory.createHello(#{any()}, #{any()})")
-                          .doBeforeParseTemplate((code)-> System.out.println(code))
-                          .imports("org.example.createviafactory.another.HelloFactory")
+                          .doBeforeParseTemplate(System.out::println)
+                          .imports("f.HelloFactory")
                           .build();
-                        maybeRemoveImport("org.example.createviafactory.Hello");
+                        maybeRemoveImport("a.Hello");
                         // why does this one not find the usage and needs false?
-                        maybeAddImport("org.example.createviafactory.another.HelloFactory", false);
+                        maybeAddImport("f.HelloFactory", false);
                         // you are also having the cache problem?
                         doAfterVisit(makeFactoryImportStatic.getVisitor());
 
@@ -109,22 +109,22 @@ public class MakeStaticTest implements RewriteTest {
           helloFactoryClass,
           java(
             """
-              package org.example.createviafactory.usage;
+              package u;
               
-              import org.example.createviafactory.Hello;
+              import a.Hello;
               
-              public class ConstructorCall {
+              public class ConstructorUsage {
               
                   public void example() {
                       new Hello("Alice", 42L);
                   }
               }
               """, """
-              package org.example.createviafactory.usage;
+              package u;
               
-              import static org.example.createviafactory.another.HelloFactory.createHello;
+              import static f.HelloFactory.createHello;
               
-              public class ConstructorCall {
+              public class ConstructorUsage {
               
                   public void example() {
                       createHello("Alice", 42L);
